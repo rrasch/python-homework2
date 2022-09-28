@@ -11,6 +11,7 @@
 import os
 import sqlite3
 
+
 def create_weather_ny_table(dbname):
     conn = sqlite3.connect(dbname)
     cur = conn.cursor()
@@ -26,7 +27,7 @@ def create_weather_ny_table(dbname):
             precip FLOAT,
             events TEXT
         )
-"""
+        """
     )
     conn.commit()
 
