@@ -12,7 +12,6 @@
 
 import json
 import os
-import pprint
 import sqlite3
 
 
