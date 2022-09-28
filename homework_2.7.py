@@ -13,6 +13,7 @@ import csv
 import json
 import io
 import os
+import pprint
 import shutil
 import sqlite3
 
@@ -140,6 +141,25 @@ def sql2json(query, conn, format='lod', primary_key=None):
     return output.getvalue()
 
 
+def create_database(conn, table, headers):
+    cur = conn.cursor()
+
+    cur.execute(f"DROP TABLE IF EXISTS {table}")
+    conn.commit()
+
+    columns = ', '.join([col + " TEXT" for col in headers])
+    query = f"CREATE TABLE {table} ({columns})"
+    print(query)
+    cur.execute(query)
+    conn.commit()
+
+
+def create_insert_stmt(table, headers):
+    val_placeholders = ', '.join(list('?' * len(headers)))
+    query = f"INSERT INTO {table} VALUES ({val_placeholders})"
+    return query
+
+
 def csv2sql(filename, conn, table):
     """
     insert a csv file into a database table
@@ -155,19 +175,11 @@ def csv2sql(filename, conn, table):
     reader = csv.reader(fh)
     headers = next(reader)
 
+    create_database(conn, table, headers)
+
+    query = create_insert_stmt(table, headers)
+
     cur = conn.cursor()
-
-    cur.execute(f"DROP TABLE IF EXISTS {table}")
-    conn.commit()
-
-    columns = ', '.join([col + " TEXT" for col in headers])
-    query = f"CREATE TABLE {table} ({columns})"
-    print(query)
-    cur.execute(query)
-    conn.commit()
-
-    val_placeholders = ', '.join(list('?' * len(headers)))
-    query = f"INSERT INTO {table} VALUES ({val_placeholders})"
 
     for fields in reader:
         cur.execute(query, fields)
@@ -188,7 +200,27 @@ def json2sql(filename, conn, table):
 
     Return Value:  None (writes to database)
     """
-    return None
+
+    fh = open(filename)
+    data = json.load(fh)
+    fh.close()
+
+    pprint.pprint(data)
+
+    headers = sorted(list(list(data.values())[0].keys()))
+    print(headers)
+
+    create_database(conn, table, headers)
+
+    query = create_insert_stmt(table, headers)
+
+    cur = conn.cursor()
+
+    for key, fields in data.items():
+        cur.execute(query, fields)
+        conn.commit()
+    fh.close()
+
 
 
 data_dir = os.path.join(
@@ -210,6 +242,10 @@ query = "SELECT date, max_dewpoint, max_sealevel FROM hw_weather_newyork"
 print(sql2csv(query, conn))
 
 print(sql2json(query, conn, format='dod', primary_key='max_sealevel'))
+
+json_file = os.path.join(data_dir, "weather_newyork_dod.json")
+
+json2sql(json_file, conn, "foo")
 
 conn.close()
 
