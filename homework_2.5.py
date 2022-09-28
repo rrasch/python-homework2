@@ -18,18 +18,16 @@ def convert_db_to_json(dbname, jsonfile):
 
     cur.execute("SELECT * from revenue")
 
-    data = {}
+    dod = {}
 
     for row in cur:
         company, state, cost = row
-        print([company, state, cost])
-
-        data[company] = {"name": company, "state": state, "amount": cost}
+        dod[company] = {"name": company, "state": state, "amount": cost}
 
     conn.close()
 
     fh = open(jsonfile, "w")
-    json.dump(data, fh, indent=4)
+    json.dump(dod, fh, indent=4)
     fh.close()
 
 
