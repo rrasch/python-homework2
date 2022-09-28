@@ -13,7 +13,6 @@ import csv
 import json
 import io
 import os
-import pprint
 import shutil
 import sqlite3
 
@@ -35,7 +34,6 @@ def sql2csv(query, conn):
     """
 
     cur = conn.cursor()
-    print(query)
     cur.execute(query)
 
     headers = [col[0] for col in cur.description]
@@ -111,7 +109,6 @@ def sql2json(query, conn, format='lod', primary_key=None):
         raise ValueError("Must specifiy primary_key with format set to 'dod'")
 
     cur = conn.cursor()
-    print(query)
     cur.execute(query)
 
     headers = [col[0] for col in cur.description]
@@ -149,7 +146,6 @@ def create_database(conn, table, headers):
 
     columns = ', '.join([col + " TEXT" for col in headers])
     query = f"CREATE TABLE {table} ({columns})"
-    print(query)
     cur.execute(query)
     conn.commit()
 
@@ -205,10 +201,7 @@ def json2sql(filename, conn, table):
     data = json.load(fh)
     fh.close()
 
-    pprint.pprint(data)
-
     headers = sorted(list(list(data.values())[0].keys()))
-    print(headers)
 
     create_database(conn, table, headers)
 
@@ -217,10 +210,11 @@ def json2sql(filename, conn, table):
     cur = conn.cursor()
 
     for key, fields in data.items():
-        cur.execute(query, fields)
+        vals = [fields[col] for col in headers]
+        cur.execute(query, vals)
         conn.commit()
-    fh.close()
 
+    fh.close()
 
 
 data_dir = os.path.join(
@@ -230,22 +224,22 @@ data_dir = os.path.join(
 orig_db_name = os.path.join(data_dir, "session_2.db")
 db_name = "my.db"
 shutil.copy(orig_db_name, db_name)
+csv_file = os.path.join(data_dir, "weather_newyork.csv")
+json_file = os.path.join(data_dir, "weather_newyork_dod.json")
 
 conn = sqlite3.connect(db_name)
-
-csv_file = os.path.join(data_dir, "weather_newyork.csv")
 
 csv2sql(csv_file, conn, "hw_weather_newyork")
 
 query = "SELECT date, max_dewpoint, max_sealevel FROM hw_weather_newyork"
 
-print(sql2csv(query, conn))
+with open("sql2csv.csv", "w") as fh:
+    fh.write(sql2csv(query, conn))
 
-print(sql2json(query, conn, format='dod', primary_key='max_sealevel'))
+with open("sql2json.json", "w") as fh:
+    fh.write(sql2json(query, conn, format='dod', primary_key='max_sealevel'))
 
-json_file = os.path.join(data_dir, "weather_newyork_dod.json")
-
-json2sql(json_file, conn, "foo")
+json2sql(json_file, conn, "weather_newyork_dod")
 
 conn.close()
 
