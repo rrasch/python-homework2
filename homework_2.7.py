@@ -32,7 +32,6 @@ def sql2csv(query, conn):
      details)
 
     """
-
     cur = conn.cursor()
     cur.execute(query)
 
@@ -48,7 +47,7 @@ def sql2csv(query, conn):
     return output.getvalue()
 
 
-def sql2json(query, conn, format='lod', primary_key=None):
+def sql2json(query, conn, format="lod", primary_key=None):
     """
     query a database and return a JSON string
 
@@ -96,39 +95,38 @@ def sql2json(query, conn, format='lod', primary_key=None):
      the json.dump() method)
 
     """
-
-    if format not in ['lod', 'dod']:
+    if format not in ["lod", "dod"]:
         raise ValueError(f"Invalid format '{format}'. Must be 'lod' or 'dod'")
 
-    want_list = format == 'lod'
+    want_lod = format == "lod"
 
-    if want_list and primary_key is not None:
-        raise ValueError("Can't specify primary_key with format set to 'lod'")
+    if want_lod and primary_key is not None:
+        raise ValueError("Can't specify primary_key when format set to 'lod'")
 
-    if not want_list and primary_key is None:
-        raise ValueError("Must specifiy primary_key with format set to 'dod'")
+    if not want_lod and primary_key is None:
+        raise ValueError("Must specifiy primary_key when format set to 'dod'")
 
     cur = conn.cursor()
     cur.execute(query)
 
     headers = [col[0] for col in cur.description]
 
-    if not want_list and primary_key not in headers:
+    if not want_lod and primary_key not in headers:
         raise ValueError(f"primary_key '{primary_key}' not found in query data")
 
-    if want_list:
+    if want_lod:
         data = []
     else:
         data = {}
 
-    if not want_list:
+    if not want_lod:
         primary_key_index = headers.index(primary_key)
 
     for row in cur:
         fields = {}
         for i, val in enumerate(row):
             fields[headers[i]] = val
-        if want_list:
+        if want_lod:
             data.append(fields)
         else:
             data[row[primary_key_index]] = fields
@@ -144,14 +142,14 @@ def create_database(conn, table, headers):
     cur.execute(f"DROP TABLE IF EXISTS {table}")
     conn.commit()
 
-    columns = ', '.join([col + " TEXT" for col in headers])
+    columns = ", ".join([col + " TEXT" for col in headers])
     query = f"CREATE TABLE {table} ({columns})"
     cur.execute(query)
     conn.commit()
 
 
 def create_insert_stmt(table, headers):
-    val_placeholders = ', '.join(list('?' * len(headers)))
+    val_placeholders = ", ".join(list("?" * len(headers)))
     query = f"INSERT INTO {table} VALUES ({val_placeholders})"
     return query
 
@@ -166,7 +164,6 @@ def csv2sql(filename, conn, table):
 
     Return Value:  None (writes to database)
     """
-
     fh = open(filename)
     reader = csv.reader(fh)
     headers = next(reader)
@@ -180,8 +177,8 @@ def csv2sql(filename, conn, table):
     for fields in reader:
         cur.execute(query, fields)
         conn.commit()
-    fh.close()
 
+    fh.close()
 
 
 def json2sql(filename, conn, table):
@@ -196,12 +193,11 @@ def json2sql(filename, conn, table):
 
     Return Value:  None (writes to database)
     """
-
     fh = open(filename)
-    data = json.load(fh)
+    dod = json.load(fh)
     fh.close()
 
-    headers = sorted(list(list(data.values())[0].keys()))
+    headers = sorted(list(list(dod.values())[0].keys()))
 
     create_database(conn, table, headers)
 
@@ -209,7 +205,7 @@ def json2sql(filename, conn, table):
 
     cur = conn.cursor()
 
-    for key, fields in data.items():
+    for key, fields in dod.items():
         vals = [fields[col] for col in headers]
         cur.execute(query, vals)
         conn.commit()
@@ -223,7 +219,7 @@ data_dir = os.path.join(
 
 orig_db_name = os.path.join(data_dir, "session_2.db")
 db_name = "my.db"
-shutil.copy(orig_db_name, db_name)
+shutil.copy(orig_db_name, db_name)  # work with my own copy of sessions_2.db
 csv_file = os.path.join(data_dir, "weather_newyork.csv")
 json_file = os.path.join(data_dir, "weather_newyork_dod.json")
 
@@ -237,7 +233,7 @@ with open("sql2csv.csv", "w") as fh:
     fh.write(sql2csv(query, conn))
 
 with open("sql2json.json", "w") as fh:
-    fh.write(sql2json(query, conn, format='dod', primary_key='max_sealevel'))
+    fh.write(sql2json(query, conn, format="dod", primary_key="max_sealevel"))
 
 json2sql(json_file, conn, "weather_newyork_dod")
 
