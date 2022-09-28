@@ -30,7 +30,7 @@ def create_and_fill_weather_ny_table(dbname, csvfile):
             precip FLOAT,
             events TEXT
         )
-"""
+        """
     )
     conn.commit()
 
@@ -62,7 +62,6 @@ data_dir = os.path.join(
 )
 db_name = os.path.join(data_dir, "session_2.db")
 csv_file = os.path.join(data_dir, "weather_newyork.csv")
-
 
 create_and_fill_weather_ny_table(db_name, csv_file)
 
