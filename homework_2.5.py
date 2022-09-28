@@ -4,7 +4,7 @@
     homework_2.5.py -- Build a JSON dict of dicts based on the revenue table
 
     Author: Rasan Rasch (rasan@nyu.edu)
-    Last Revised: 9/27/2022
+    Last Revised: 9/28/2022
 """
 
 import json
