@@ -14,8 +14,8 @@ import sqlite3
 
 
 def sql_to_csv(dbname, tbl_name, csv_fname):
-    con = sqlite3.connect(dbname)
-    cur = con.cursor()
+    conn = sqlite3.connect(dbname)
+    cur = conn.cursor()
 
     fh = open(csv_fname, "w", newline="")
     writer = csv.writer(fh)
@@ -27,7 +27,7 @@ def sql_to_csv(dbname, tbl_name, csv_fname):
     for row in cur:
         writer.writerow(row)
 
-    con.close()
+    conn.close()
     fh.close()
 
 
