@@ -30,7 +30,7 @@ def create_and_fill_weather_ny_table(dbname, jsonfile):
             precip FLOAT,
             events TEXT
         )
-"""
+        """
     )
     conn.commit()
 
