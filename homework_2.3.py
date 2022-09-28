@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
 """
-    homework_2.2.py -- creates a new table called weather_newyork
-                       in the session_2.db
+    homework_2.3.py -- read from weather_newyork.csv, select the date,
+                       mean_temp, precip and events columns,
+                       and insert them row-by-row into the table
+                       weather_newyork
 
     Author: Rasan Rasch (rasan@nyu.edu)
     Last Revised: 9/27/2022
