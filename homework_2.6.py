@@ -10,7 +10,6 @@
 
 import json
 import os
-import pprint
 
 
 data_dir = os.path.join(
@@ -19,12 +18,12 @@ data_dir = os.path.join(
 json_file = os.path.join(data_dir, "ip_routes.json")
 
 fh = open(json_file)
-data = json.load(fh)
+dod = json.load(fh)
 fh.close()
 
-routes = data["result"][0]["vrfs"]["default"]["routes"]
+routes = dod["result"][0]["vrfs"]["default"]["routes"]
 
-print(f"number of keys in the 'routes' dict: {len(routes.keys())}")
+print(f"number of keys in the 'routes' dict:\n{len(routes.keys())}")
 
 print("\nips with a 'routeType' of 'iBGP'")
 for ip, attr in routes.items():
@@ -32,8 +31,8 @@ for ip, attr in routes.items():
         print(ip)
 
 print("\nkeys other than 'routes' in the 'default' dict")
-default_dict = data["result"][0]["vrfs"]["default"]
+default_dict = dod["result"][0]["vrfs"]["default"]
 for key in default_dict.keys():
     if key != "routes":
-        print(key)
+        print(f"{key}: {default_dict[key]}")
 
