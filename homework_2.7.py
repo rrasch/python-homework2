@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
     homework_2.7.py -- Write a module called etllib.py with the following
