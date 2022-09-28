@@ -123,6 +123,9 @@ def sql2json(query, conn, format='lod', primary_key=None):
     else:
         data = {}
 
+    if not want_list:
+        primary_key_index = headers.index(primary_key)
+
     for row in cur:
         fields = {}
         for i, val in enumerate(row):
@@ -130,7 +133,7 @@ def sql2json(query, conn, format='lod', primary_key=None):
         if want_list:
             data.append(fields)
         else:
-            data[primary_key] = fields
+            data[row[primary_key_index]] = fields
 
     output = io.StringIO()
     json.dump(data, output, indent=4)
